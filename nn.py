@@ -4,6 +4,8 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torch.utils.data import TensorDataset, DataLoader
+from sklearn.base import BaseEstimator, ClassifierMixin
+from sklearn.utils.validation import check_X_y, check_array, check_is_fitted
 
 def timer(func):
     def wrapper(*args, **kwargs):
@@ -27,7 +29,7 @@ class MLP(nn.Module):
         y_pred = self.linear[-1](x)
         return y_pred
 
-class MLPClassifier:
+class MLPClassifier(BaseEstimator, ClassifierMixin):
     def __init__(
         self, hidden_layer_sizes=(100,), alpha=0.0001, 
         batch_size=200, learning_rate=0.001, max_iter=200, 
@@ -49,11 +51,15 @@ class MLPClassifier:
         X: ndarray of shape (n_samples, n_features)
         y: ndarray of shape (n_samples,)
         '''
-        if self.random_state is not None:
+        X, y = check_X_y(X, y)
+        self.classes_, y = np.unique(y, return_inverse=True)
+        self.X_ = X
+        self.y_ = y
+        
+        if isinstance(self.random_state, int):
             torch.manual_seed(self.random_state)
         n_samples, n_features = X.shape
         n_classes = np.unique(y).size
-        # n_classes = int(np.max(y)) + 1
         X = torch.from_numpy(X).float()
         y = torch.from_numpy(y).long()
         dataset = TensorDataset(X, y)
@@ -80,18 +86,19 @@ class MLPClassifier:
         return self
 
     def predict(self, X):
+        check_is_fitted(self, ['X_', 'y_'])
+        X = check_array(X)
         X = torch.from_numpy(X).float()
         self.model.eval()
         output = self.model(X)
-        y_pred = torch.argmax(output, dim=1).numpy()
+        y_pred = self.classes_[torch.argmax(output, dim=1).numpy()]
         return y_pred
 
     def predict_proba(self, X):
+        check_is_fitted(self, ['X_', 'y_'])
+        X = check_array(X)
         X = torch.from_numpy(X).float()
         self.model.eval()
         output = self.model(X)
         y_prob = F.softmax(output, dim=1).detach().numpy()
         return y_prob
-
-    def score(self, X, y):
-        return np.sum(self.predict(X) == y) / y.size

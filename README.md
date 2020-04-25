@@ -1,5 +1,5 @@
 # mlp-pytorch
-
+MLP using PyTorch with scikit-learn interface
 ```bash
 py -3 -m venv .venv
 source .venv/Scripts/activate
