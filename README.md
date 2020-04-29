@@ -7,4 +7,5 @@ pip3 install pandas
 pip3 install scikit-learn
 pip3 install notebook
 pip3 install torch==1.4.0+cpu torchvision==0.5.0+cpu -f https://download.pytorch.org/whl/torch_stable.html
+# pip3 install tensorflow==2.0 # Keras constant shapes
 ```

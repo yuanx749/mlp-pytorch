@@ -7,14 +7,6 @@ from torch.utils.data import TensorDataset, DataLoader
 from sklearn.base import BaseEstimator, ClassifierMixin
 from sklearn.utils.validation import check_X_y, check_array, check_is_fitted
 
-def timer(func):
-    def wrapper(*args, **kwargs):
-        start = time.time()
-        value = func(*args, **kwargs)
-        print('{} seconds'.format(time.time() - start))
-        return value
-    return wrapper
-
 class MLP(nn.Module):
     def __init__(self, D_in, H_sizes, D_out):
         super().__init__()
@@ -45,6 +37,15 @@ class MLPClassifier(BaseEstimator, ClassifierMixin):
         self.verbose = verbose
         self.loss_curve = []
 
+    def timer(func):
+        def wrapper(self, *args, **kwargs):
+            start = time.time()
+            value = func(self, *args, **kwargs)
+            if self.verbose:
+                print('{} seconds'.format(time.time() - start))
+            return value
+        return wrapper
+    
     @timer
     def fit(self, X, y):
         '''
@@ -66,7 +67,7 @@ class MLPClassifier(BaseEstimator, ClassifierMixin):
         self.batch_size = min(self.batch_size, n_samples)
         dataloader = DataLoader(dataset, batch_size=self.batch_size, shuffle=self.shuffle)
         self.model = MLP(n_features, self.hidden_layer_sizes, n_classes)
-        loss_fn = nn.CrossEntropyLoss()
+        loss_fn = nn.CrossEntropyLoss() # combines nn.LogSoftmax() and nn.NLLLoss()
         optimizer = torch.optim.Adam(self.model.parameters(), lr=self.learning_rate, weight_decay=self.alpha)
 
         self.model.train()
