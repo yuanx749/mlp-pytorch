@@ -4,6 +4,7 @@ import logging
 import time
 import sys
 import pandas as pd
+import yaml
 
 import data_loader
 import nn
@@ -13,6 +14,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Run an experiment')
     parser.add_argument('--output', type=str, default='output', help='Output directory')
     parser.add_argument('--dataset', type=str, default='biodeg.csv', help='Input dataset file')
+    parser.add_argument('--params', type=str, default='params.yml', help='Hyperparameters YAML')
     parser.add_argument('--plot', action='store_false', help='NOT plot learning curves')
     parser.add_argument('--verbose', action='store_false', help='NOT print progress messages to stdout')
     args = parser.parse_args()
@@ -41,21 +43,14 @@ if __name__ == "__main__":
     X_train, X_test, y_train, y_test = data_loader.load(input_path, **params)
     logger.info('Split into train and test subsets: {}'.format(params))
     
-    params = {
-        'hidden_layer_sizes': (100, 100), 
-        'alpha': 0.0001, # weight_decay, L2 penalty
-        'batch_size': 100, 
-        'learning_rate': 0.001, 
-        'max_iter': 200, 
-        'shuffle': True, 
-        'random_state': 0, 
-        'verbose': True, 
-        'validation_fraction': 0.1
-        }
+    params_path = os.path.abspath(args.params)
+    with open(params_path) as file_:
+        params = yaml.load(file_, Loader=yaml.SafeLoader)
+    logger.info('Load {}'.format(params_path))
+    logger.info('Hyperparameters: {}'.format(params))
     mlp = nn.MLPClassifier(**params)
     estimator = mlp.__class__.__name__
     logger.info('Train {} on {}'.format(estimator, dataset))
-    logger.info('Parameters: {}'.format(params))
     mlp.fit(X_train, y_train)
     
     output_dir = os.path.abspath(args.output)
