@@ -7,5 +7,3 @@ shuffle: True
 random_state: 0
 verbose: True
 validation_fraction: 0.1
-
-
