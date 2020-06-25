@@ -9,3 +9,7 @@ Show help
 ```bash
 python3 run_experiment.py --help
 ```
+Jupyter
+```bash
+jupyter notebook --ip=127.0.0.1 --no-browser
+```
