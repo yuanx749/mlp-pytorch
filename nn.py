@@ -78,15 +78,6 @@ class BaseClassifier(BaseEstimator, ClassifierMixin, metaclass=ABCMeta):
         self.verbose = verbose
         self.validation_fraction = validation_fraction
 
-    def timer(func):
-        def wrapper(self, *args, **kwargs):
-            start = time.time()
-            value = func(self, *args, **kwargs)
-            if self.verbose:
-                print('{} seconds'.format(time.time() - start))
-            return value
-        return wrapper
-
     def _numpy_to_tensor_x(self, X):
         return torch.from_numpy(X).float()
 
@@ -112,11 +103,11 @@ class BaseClassifier(BaseEstimator, ClassifierMixin, metaclass=ABCMeta):
         dataloader = DataLoader(dataset, batch_size=self.batch_size, shuffle=self.shuffle)
         return dataloader
 
-    @timer
     def _train(self, dataloader):
         self.loss_curve_ = []
         self.training_scores_ = []
         self.validation_scores_ = []
+        self.fit_times_ = []
         
         loss_fn = nn.CrossEntropyLoss() # combines nn.LogSoftmax() and nn.NLLLoss()
         optimizer = torch.optim.Adam(
@@ -125,8 +116,9 @@ class BaseClassifier(BaseEstimator, ClassifierMixin, metaclass=ABCMeta):
             weight_decay=self.alpha)
 
         if self.verbose:
-            print('{:>8}{:>8}{:>18}{:>18}'.format('epoch', 'loss', 'training score', 'validation score'))
+            print('{:>8}{:>8}{:>18}{:>18}{:>18}'.format('epoch', 'loss', 'training score', 'validation score', 'time (seconds)'))
         for epoch in range(self.max_iter):
+            start = time.time()
             self.model.train()
             accumulated_loss = 0.0
             for X, y in dataloader:
@@ -140,9 +132,10 @@ class BaseClassifier(BaseEstimator, ClassifierMixin, metaclass=ABCMeta):
             self.loss_curve_.append(loss_)
             self.training_scores_.append(self.score(self.X_, self.y_))
             self.validation_scores_.append(self.score(self.X_val, self.y_val))
+            self.fit_times_.append(time.time() - start)
             if self.verbose and epoch % 10 == 0:
-                print('{:8d}{:8.4f}{:18.4f}{:18.4f}'.format(
-                    epoch + 1, loss_, self.training_scores_[-1], self.validation_scores_[-1]))
+                print('{:8d}{:8.4f}{:18.4f}{:18.4f}{:18.4f}'.format(
+                    epoch + 1, loss_, self.training_scores_[-1], self.validation_scores_[-1], self.fit_times_[-1]))
         return self
 
     def predict(self, X):
