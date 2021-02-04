@@ -183,7 +183,7 @@ class CNNClassifier(BaseClassifier):
         self, alpha=0.0001, 
         batch_size=200, learning_rate=0.001, max_iter=200, 
         shuffle=True, random_state=None, verbose=False, 
-        validation_fraction=0.2):
+        validation_fraction=0.2, **kwargs):
         super().__init__(
             alpha=alpha, batch_size=batch_size, learning_rate=learning_rate, 
             max_iter=max_iter, shuffle=shuffle, random_state=random_state, verbose=verbose, 
@@ -206,7 +206,7 @@ class RNNClassifier(BaseClassifier):
         self, alpha=0.0001, 
         batch_size=200, learning_rate=0.001, max_iter=200, 
         shuffle=True, random_state=None, verbose=False, 
-        validation_fraction=0.2):
+        validation_fraction=0.2, **kwargs):
         super().__init__(
             alpha=alpha, batch_size=batch_size, learning_rate=learning_rate, 
             max_iter=max_iter, shuffle=shuffle, random_state=random_state, verbose=verbose, 

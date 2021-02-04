@@ -14,7 +14,7 @@ parser = argparse.ArgumentParser(description='Run an experiment')
 parser.add_argument('--output', default='output', type=str, help='Output directory')
 parser.add_argument('--dataset', default='biodeg.csv', type=str, help='Input dataset file')
 parser.add_argument('--model', default='MLP', choices=['MLP', 'CNN', 'RNN'], help='Model type')
-parser.add_argument('--params', default='params1.yml', type=str, help='Hyperparameters YAML')
+parser.add_argument('--params', default='params.yml', type=str, help='Hyperparameters YAML')
 parser.add_argument('--plot', action='store_false', help='NOT plot learning curves')
 parser.add_argument('--verbose', action='store_false', help='NOT print progress messages to stdout')
 args = parser.parse_args()
@@ -40,7 +40,7 @@ def main():
     input_path = os.path.abspath(os.path.join('./data', args.dataset))
     dataset = os.path.splitext(args.dataset)[0]
     logger.info('Load {}'.format(input_path))
-    params = {'test_size': 0.2, 'random_state': 1}
+    params = {'test_size': 0.2, 'random_state': 1, 'cluster': 'kmeans'}
     X_train, X_test, y_train, y_test = data_loader.load(input_path, **params)
     logger.info('Split into train and test subsets: {}'.format(params))
     

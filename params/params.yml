@@ -1,8 +1,8 @@
-hidden_layer_sizes: [100, 100]
+hidden_layer_sizes: [100, 100] # MLP
 alpha: 0.0001 # weight_decay, L2 penalty
 batch_size: 100
 learning_rate: 0.001
-max_iter: 200 
+max_iter: 200
 shuffle: True
 random_state: 0
 verbose: True
